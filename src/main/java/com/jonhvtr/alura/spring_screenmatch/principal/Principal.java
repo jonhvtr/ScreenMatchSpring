@@ -6,6 +6,8 @@ import com.jonhvtr.alura.spring_screenmatch.service.ConsumingData;
 import com.jonhvtr.alura.spring_screenmatch.service.ConvertingData;
 import io.github.cdimascio.dotenv.Dotenv;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -21,7 +23,8 @@ public class Principal {
     public void exibeMenu() {
         System.out.println("Digite o nome de uma Série");
         String nameSerie = scan.nextLine();
-        String json = consumingData.getData(ADDRESS + nameSerie.replace(" ", "+") +
+        String query = URLEncoder.encode(nameSerie, StandardCharsets.UTF_8);
+        String json = consumingData.getData(ADDRESS + query +
                 "&apikey=" + API_KEY);
 
         DataSerie data = convertingData.getData(json, DataSerie.class);
