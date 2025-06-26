@@ -1,5 +1,6 @@
 package com.jonhvtr.alura.spring_screenmatch;
 
+import com.jonhvtr.alura.spring_screenmatch.principal.NewPrincipal;
 import com.jonhvtr.alura.spring_screenmatch.principal.Principal;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -14,7 +15,9 @@ public class SpringScreenmatchApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Principal principal = new Principal();
-        principal.exibeMenu();
+//        Principal principal = new Principal();
+//        principal.exibeMenu();
+        NewPrincipal newPrincipal = new NewPrincipal();
+        newPrincipal.exibeMenu();
     }
 }
