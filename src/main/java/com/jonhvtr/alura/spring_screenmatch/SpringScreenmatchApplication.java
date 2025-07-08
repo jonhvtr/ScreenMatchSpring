@@ -2,12 +2,17 @@ package com.jonhvtr.alura.spring_screenmatch;
 
 import com.jonhvtr.alura.spring_screenmatch.principal.NewPrincipal;
 import com.jonhvtr.alura.spring_screenmatch.principal.Principal;
+import com.jonhvtr.alura.spring_screenmatch.repository.SerieRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class SpringScreenmatchApplication implements CommandLineRunner {
+
+    @Autowired
+    private SerieRepository serieRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringScreenmatchApplication.class, args);
@@ -17,7 +22,7 @@ public class SpringScreenmatchApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
 //        Principal principal = new Principal();
 //        principal.exibeMenu();
-        NewPrincipal newPrincipal = new NewPrincipal();
+        NewPrincipal newPrincipal = new NewPrincipal(serieRepository);
         newPrincipal.exibeMenu();
     }
 }

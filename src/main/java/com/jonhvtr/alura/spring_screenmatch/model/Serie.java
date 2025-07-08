@@ -1,20 +1,38 @@
 package com.jonhvtr.alura.spring_screenmatch.model;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
+@Entity
+@Table(name = "series", schema = "alura_series")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Serie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true)
     private String title;
+
+    @Enumerated(EnumType.STRING)
     private Categories genre;
+
     private String actors;
     private String poster;
     private String plot;
     private Integer totalSeasons;
     private double rating;
+
+    @Transient
+    private List<Episode> episodes = new ArrayList<>();
 
     public Serie(DataSerie dataSerie) {
         this.title = dataSerie.title();
