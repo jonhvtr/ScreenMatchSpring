@@ -3,9 +3,11 @@ package com.jonhvtr.alura.spring_screenmatch.principal;
 import com.jonhvtr.alura.spring_screenmatch.model.DataSeason;
 import com.jonhvtr.alura.spring_screenmatch.model.DataSerie;
 import com.jonhvtr.alura.spring_screenmatch.model.Serie;
+import com.jonhvtr.alura.spring_screenmatch.repository.SerieRepository;
 import com.jonhvtr.alura.spring_screenmatch.service.ConsumingData;
 import com.jonhvtr.alura.spring_screenmatch.service.ConvertingData;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -15,13 +17,19 @@ import java.util.List;
 import java.util.Scanner;
 
 public class NewPrincipal {
-    private Scanner scan = new Scanner(System.in);
-    private ConsumingData consumingData = new ConsumingData();
-    private ConvertingData convertingData = new ConvertingData();
+    private final Scanner scan = new Scanner(System.in);
+    private final ConsumingData consumingData = new ConsumingData();
+    private final ConvertingData convertingData = new ConvertingData();
     private final String ADDRESS = "https://www.omdbapi.com/?t=";
     Dotenv dotenv = Dotenv.load();
     private final String API_KEY = "&apikey=" + dotenv.get("API_KEY");
-    private List<DataSerie> dataSeries = new ArrayList<>();
+    private final List<DataSerie> dataSeries = new ArrayList<>();
+
+    private final SerieRepository serieRepository;
+
+    public NewPrincipal(SerieRepository serieRepository) {
+        this.serieRepository = serieRepository;
+    }
 
     public void exibeMenu() {
         var opcao = -1;
@@ -60,7 +68,8 @@ public class NewPrincipal {
 
     private void searchSerieWeb() {
         DataSerie dataSerie = getDataSerie();
-        dataSeries.add(dataSerie);
+        Serie serie = new Serie(dataSerie);
+        serieRepository.save(serie);
         System.out.println(dataSerie);
     }
 
@@ -86,8 +95,7 @@ public class NewPrincipal {
     }
 
     private void searchHistory() {
-        List<Serie> series = new ArrayList<>();
-        series = dataSeries.stream().map(Serie::new).toList();
+        List<Serie> series = serieRepository.findAll();
         series.stream().sorted(Comparator.comparing(Serie::getGenre)).forEach(System.out::println);
     }
 }
