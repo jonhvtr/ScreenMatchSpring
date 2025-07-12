@@ -31,7 +31,7 @@ public class Serie {
     private Integer totalSeasons;
     private double rating;
 
-    @Transient
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episode> episodes = new ArrayList<>();
 
     public Serie(DataSerie dataSerie) {
@@ -45,6 +45,11 @@ public class Serie {
         this.rating = OptionalDouble.of(Double.parseDouble(dataSerie.rating())).orElse(0.0);
     }
 
+    public void setEpisodes(List<Episode> episodes) {
+        episodes.forEach(e -> e.setSerie(this));
+        this.episodes = episodes;
+    }
+
     @Override
     public String toString() {
         return "Serie{" +
@@ -55,6 +60,7 @@ public class Serie {
                 ", plot='" + plot + '\'' +
                 ", totalSeasons=" + totalSeasons +
                 ", rating=" + rating +
+                ", episodes=" + episodes +
                 '}';
     }
 }

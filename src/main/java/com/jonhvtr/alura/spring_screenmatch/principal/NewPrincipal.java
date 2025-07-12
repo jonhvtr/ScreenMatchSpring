@@ -2,19 +2,16 @@ package com.jonhvtr.alura.spring_screenmatch.principal;
 
 import com.jonhvtr.alura.spring_screenmatch.model.DataSeason;
 import com.jonhvtr.alura.spring_screenmatch.model.DataSerie;
+import com.jonhvtr.alura.spring_screenmatch.model.Episode;
 import com.jonhvtr.alura.spring_screenmatch.model.Serie;
 import com.jonhvtr.alura.spring_screenmatch.repository.SerieRepository;
 import com.jonhvtr.alura.spring_screenmatch.service.ConsumingData;
 import com.jonhvtr.alura.spring_screenmatch.service.ConvertingData;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class NewPrincipal {
     private final Scanner scan = new Scanner(System.in);
@@ -26,6 +23,8 @@ public class NewPrincipal {
     private final List<DataSerie> dataSeries = new ArrayList<>();
 
     private final SerieRepository serieRepository;
+
+    private List<Serie> series = new ArrayList<>();
 
     public NewPrincipal(SerieRepository serieRepository) {
         this.serieRepository = serieRepository;
@@ -82,20 +81,40 @@ public class NewPrincipal {
     }
 
     private void searchEpisodeBySerie() {
-        DataSerie dataSerie = getDataSerie();
-        List<DataSeason> seasons = new ArrayList<>();
+        searchHistory();
+        System.out.println("Escolha uma série:");
+        var nameSerie = scan.nextLine();
 
-        for (int i = 1; i <= dataSerie.totalSeasons(); i++) {
-            var json = consumingData.getData(ADDRESS +
-                    dataSerie.title().replace(" ", "+") + "&season=" + i + API_KEY);
-            DataSeason dataSeason = convertingData.getData(json, DataSeason.class);
-            seasons.add(dataSeason);
+        Optional<Serie> serie = series.stream()
+                .filter(s -> s.getTitle().toLowerCase().contains(nameSerie.toLowerCase()))
+                .findFirst();
+
+        if (serie.isPresent()) {
+            var seriesFound = serie.get();
+            List<DataSeason> seasons = new ArrayList<>();
+
+            for (int i = 1; i <= seriesFound.getTotalSeasons(); i++) {
+                var json = consumingData.getData(ADDRESS +
+                        seriesFound.getTitle().replace(" ", "+") + "&season=" + i + API_KEY);
+                DataSeason dataSeason = convertingData.getData(json, DataSeason.class);
+                seasons.add(dataSeason);
+            }
+            seasons.forEach(System.out::println);
+
+            List<Episode> episodes = seasons.stream()
+                    .flatMap(d -> d.episodesList().stream()
+                            .map(e -> new Episode(d.season(), e)))
+                    .toList();
+
+            seriesFound.setEpisodes(episodes);
+            serieRepository.save(seriesFound);
+        } else {
+            System.out.println("Série não encontrada!");
         }
-        seasons.forEach(System.out::println);
     }
 
     private void searchHistory() {
-        List<Serie> series = serieRepository.findAll();
+        series = serieRepository.findAll();
         series.stream().sorted(Comparator.comparing(Serie::getGenre)).forEach(System.out::println);
     }
 }
