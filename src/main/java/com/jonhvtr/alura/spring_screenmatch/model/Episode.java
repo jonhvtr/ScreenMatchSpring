@@ -1,21 +1,31 @@
 package com.jonhvtr.alura.spring_screenmatch.model;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+@Entity
+@Table(name = "episodes", schema = "alura_series")
 @Getter
 @Setter
-@AllArgsConstructor
+@NoArgsConstructor
 public class Episode {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private Integer season;
     private String title;
     private Integer numEpisode;
     private Double rating;
     private LocalDate releaseDate;
+
+    @ManyToOne
+    private Serie serie;
 
     public Episode(Integer numSeason, DataEpisode dataEpisode) {
         this.season = numSeason;
