@@ -23,7 +23,7 @@ public class Serie {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    private Categories genre;
+    private Category genre;
 
     private String actors;
     private String poster;
@@ -36,7 +36,7 @@ public class Serie {
 
     public Serie(DataSerie dataSerie) {
         this.title = dataSerie.title();
-        this.genre = Categories.fromString(dataSerie.genre().split(",")[0].trim());
+        this.genre = Category.fromString(dataSerie.genre().split(",")[0].trim());
         this.actors = dataSerie.actors();
         this.poster = dataSerie.poster();
         this.plot = dataSerie.plot();
