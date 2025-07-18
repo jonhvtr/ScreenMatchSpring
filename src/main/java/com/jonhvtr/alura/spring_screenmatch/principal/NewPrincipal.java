@@ -23,6 +23,8 @@ public class NewPrincipal {
 
     private List<Serie> series = new ArrayList<>();
 
+    private Optional<Serie> foundSeries;
+
     public NewPrincipal(SerieRepository serieRepository) {
         this.serieRepository = serieRepository;
     }
@@ -40,6 +42,9 @@ public class NewPrincipal {
                     6 - Top 5 Séries
                     7 - Buscar Série por Categoria
                     8 - Buscar Séries por temporada
+                    9 - Buscar episódio por trecho
+                    10 - Top 5 episódios por série
+                    11 - Buscar episódios a partir de uma data 
                     
                     0 - Sair
                     """;
@@ -71,7 +76,16 @@ public class NewPrincipal {
                     searchSeriesByCategory();
                     break;
                 case 8:
-                    searchSeriesByNumberOfSeasons();
+                    seriesBySeasonAndRating();
+                    break;
+                case 9:
+                    searchForEpisodeByExcerpt();
+                    break;
+                case 10:
+                    searchTopEpisodeBySerie();
+                    break;
+                case 11:
+                    searchEpisodeAfterData();
                     break;
                 case 0:
                     System.out.println("Saindo...");
@@ -136,8 +150,7 @@ public class NewPrincipal {
     private void searchSerieByTitle() {
         System.out.println("Escolha uma série:");
         var nameSerie = scan.nextLine();
-
-        Optional<Serie> foundSeries = serieRepository.findByTitleContainingIgnoreCase(nameSerie);
+        foundSeries = serieRepository.findByTitleContainingIgnoreCase(nameSerie);
 
         if (foundSeries.isPresent()) {
             System.out.println("Dados da série: " + foundSeries.get());
@@ -171,15 +184,49 @@ public class NewPrincipal {
         seriesByCategory.forEach(System.out::println);
     }
 
-    private void searchSeriesByNumberOfSeasons() {
+    private void seriesBySeasonAndRating() {
         System.out.println("Digite o números de temporadas que deseja:");
         var numSeasons = scan.nextInt();
         System.out.println("Digite o número de avaliações que deseja:");
         var rating = scan.nextDouble();
         List<Serie> seriesByNumberOfSeasons =
-                serieRepository.findByTotalSeasonsLessThanEqualAndRatingGreaterThanEqual(numSeasons, rating);
+                serieRepository.seriesBySeasonAndRating(numSeasons, rating);
         System.out.println("Séries encontradas:");
         seriesByNumberOfSeasons.forEach(System.out::println);
     }
 
+    private void searchForEpisodeByExcerpt() {
+        System.out.println("Digite um trecho de uma série:");
+        var excerpt = scan.nextLine();
+        List<Episode> foundSeries = serieRepository.searchForEpisodeByExcerpt(excerpt);
+        System.out.println("Séries encontradas:");
+        foundSeries.forEach(e ->
+                System.out.printf("Série: %s Temporada %s - Episódio %s - %s\n",
+                        e.getSerie().getTitle(), e.getSeason(),
+                        e.getNumEpisode(), e.getTitle()));
+    }
+
+    private void searchTopEpisodeBySerie() {
+        searchSerieByTitle();
+        if (foundSeries.isPresent()) {
+            Serie serie = foundSeries.get();
+            List<Episode> topEpisode = serieRepository.searchTopEpisodeBySerie(serie);
+            topEpisode.forEach(e ->
+                    System.out.printf("Série: %s Temporada %s - Episódio %s - %s - Avaliação %s\n",
+                    e.getSerie().getTitle(), e.getSeason(),
+                    e.getNumEpisode(), e.getTitle(), e.getRating()));
+        }
+    }
+
+    private void searchEpisodeAfterData() {
+        searchSerieByTitle();
+        if (foundSeries.isPresent()) {
+            Serie serie = foundSeries.get();
+            System.out.println("Digite o ano limiete de lançamento:");
+            var releaseYear = scan.nextInt();
+            scan.nextLine();
+            List<Episode> foundEpisodes = serieRepository.searchEpisodeByReleaseDate(serie, releaseYear);
+            foundEpisodes.forEach(System.out::println);
+        }
+    }
 }
